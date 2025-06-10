@@ -1,4 +1,4 @@
-package org.hoyo.celestia.model;
+package org.hoyo.celestia.user.model;
 
 import lombok.Data;
 
