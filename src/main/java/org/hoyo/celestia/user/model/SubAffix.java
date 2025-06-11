@@ -6,4 +6,5 @@ import lombok.Data;
 public class SubAffix {
     private Integer affixId;
     private Integer cnt;
+    private Integer step;
 }
