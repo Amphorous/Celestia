@@ -2,14 +2,17 @@ package org.hoyo.celestia.user.service;
 
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
+import org.hoyo.celestia.subloaders.service.SubloaderService;
 import org.hoyo.celestia.timeouts.services.TimeoutService;
 import org.hoyo.celestia.user.UserRepository;
+import org.hoyo.celestia.user.model.AvatarDetail;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -18,11 +21,13 @@ public class CreateUserService {
     private final ValidateUid validateUid;
     private final UserRepository userRepository;
     private final TimeoutService timeoutService;
+    private final SubloaderService subloaderService;
 
-    public CreateUserService(ValidateUid validateUid, UserRepository userRepository, TimeoutService timeoutService) {
+    public CreateUserService(ValidateUid validateUid, UserRepository userRepository, TimeoutService timeoutService, SubloaderService subloaderService) {
         this.validateUid = validateUid;
         this.userRepository = userRepository;
         this.timeoutService = timeoutService;
+        this.subloaderService = subloaderService;
     }
 
     //check mongo if user by uid exists
@@ -47,7 +52,10 @@ public class CreateUserService {
             newUser.setId(user.getId());
             userRepository.save(newUser);
             //call subloader here---------
-
+            Boolean subloaderStatus = subloaderService.userSubloader(newUser);
+            if(!subloaderStatus){
+                return ResponseEntity.status(HttpStatus.OK).body("User has private Builds List");
+            }
             //----------------------------
             return ResponseEntity.status(HttpStatus.OK).body("User updated successfully.");
         } else {
@@ -55,7 +63,10 @@ public class CreateUserService {
             if(newUser != null){
                 userRepository.save(newUser);
                 //call subloader here---------
-
+                Boolean subloaderStatus = subloaderService.userSubloader(newUser);
+                if(!subloaderStatus){
+                    return ResponseEntity.status(HttpStatus.OK).body("User has private Builds List");
+                }
                 //----------------------------
                 return ResponseEntity.status(HttpStatus.OK).body("User created successfully.");
             }
@@ -90,4 +101,6 @@ public class CreateUserService {
         //System.err.println("Error in createUserService.fetchUser, could not get response from enka for uid " + uid);
         return null;
     }
+
+
 }
