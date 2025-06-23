@@ -36,6 +36,7 @@ public class WeaponLoaderService {
 
     private void rootCheckAndCreate() {
         //check if root node Store:name=weapon exists, if not create one
+        
     }
 
     public String loadWeaponsFromFile(){
