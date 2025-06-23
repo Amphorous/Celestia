@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.hoyo.celestia.loaders.StoreRepository;
 import org.hoyo.celestia.loaders.WeaponNodeRepository;
+import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
 import org.hoyo.celestia.loaders.model.*;
 import org.hoyo.celestia.loaders.model.relations.ContainsWeapon;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,12 @@ import java.util.Set;
 
 @Service
 public class WeaponLoaderService {
-    private final StoreRepository storeRepository;
     private final WeaponNodeRepository weaponNodeRepository;
+    private final GlobalMetaFileLoader globalMetaFileLoader;
 
-    public WeaponLoaderService(StoreRepository storeRepository, WeaponNodeRepository weaponNodeRepository) {
-        this.storeRepository = storeRepository;
+    public WeaponLoaderService(WeaponNodeRepository weaponNodeRepository, GlobalMetaFileLoader globalMetaFileLoader) {
         this.weaponNodeRepository = weaponNodeRepository;
+        this.globalMetaFileLoader = globalMetaFileLoader;
     }
 
     //read honker_weps.json
@@ -49,18 +50,16 @@ public class WeaponLoaderService {
                 .build();
 
         JsonNode honkerWepsRootNode;
-        JsonNode honkerMetaRootNode;
         try{
             honkerWepsRootNode = mapper.readTree(new File(honkerWepsPath));
-            honkerMetaRootNode = mapper.readTree(new File(honkerMetaPath));
         } catch (IOException exception){
             exception.printStackTrace();
             return exception.getMessage();
         }
 
         Set<Map.Entry<String, JsonNode>> entries = honkerWepsRootNode.properties();
-        HonkerMetaObject metaFile = mapper.convertValue(honkerMetaRootNode, HonkerMetaObject.class);
         //System.out.println(metaFile.getEquipment().get("20000").get("0").get("AttackAdd"));
+        HonkerMetaObject metaFile = globalMetaFileLoader.getMetaFile();
 
         Iterator<Map.Entry<String, JsonNode>> entryIterator = entries.iterator();
         int count = 0;
