@@ -39,6 +39,7 @@ public class CreateUserService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad UID.");
         }
         if(!timeoutService.canIEnkaCallYet(uid)){
+            //timeout isnt ready
             return ResponseEntity.status(HttpStatus.OK).body("User is not enka call yet.");
         }
 
