@@ -10,11 +10,15 @@ import java.util.ArrayList;
 public class SubloaderService {
     public Boolean userSubloader(User user){
         if(!user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection()){
+            //users builds are private, return false
             return false;
         }
         ArrayList<AvatarDetail> avatarDetailList = user.getDetailInfo().getAvatarDetailList();
         for(AvatarDetail character : avatarDetailList){
-            
+            //make a build object for each character
+            //-->
         }
+        //this marks the end of subloading, having read the user builds
+        return true;
     }
 }
