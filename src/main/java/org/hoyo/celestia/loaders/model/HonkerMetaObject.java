@@ -19,4 +19,12 @@ public class HonkerMetaObject {
                         Map<String, Double>
                     >
                 > equipment;
+
+        private Map<String,
+                    Map<String,
+                        Map<String,
+                            Map<String, Double>
+                        >
+                    >
+                > tree;
 }
