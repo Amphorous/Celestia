@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @Node
-public class Store {
+public class StoreNode {
     @Id
     @GeneratedValue
     private Long id;
