@@ -9,7 +9,9 @@ import org.hoyo.celestia.user.model.SubAffix;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CreateRelicService {
@@ -39,7 +41,7 @@ public class CreateRelicService {
         }
     }
 
-    public String createRelicNode(Relic relic){
+    public String createRelicNode(Relic relic, String uid){
         RelicNode relicNode = new RelicNode();
         relicNode.setRelicId(calculateRelicId(relic));
         relicNode.setMainAffixId(String.valueOf(relic.getMainAffixId()));
@@ -63,15 +65,35 @@ public class CreateRelicService {
             count++;
         }
 
-        relicNodeRepository.save(relicNode);
-        //link it to relicStore under uid
+        relicNodeRepository.insertRelic(
+                relicNode.getRelicId(),
+                uid,
+                relicNode.getMainAffixId(),
+                relicNode.getTid(),
+                relicNode.getType(),
+                relicNode.getLevel(),
+                relicNode.getSetId(),
+                relicNode.getSetName(),
+                relicNode.getMainType(),
+                relicNode.getMainValue(),
+                convertSubAffixes(subAffixNodes)
+        );
 
-        for(SubAffixNode subAffixNode : subAffixNodes){
-            subAffixNodeRepository.save(subAffixNode);
-            //link it to relicNode from above
-        }
 
 
-        return true;
+        return relicNode.getRelicId();
     }
+
+    public List<Map<String, Object>> convertSubAffixes(List<SubAffixNode> subAffixes) {
+        return subAffixes.stream().map(s -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("type", s.getType());
+            map.put("value", s.getValue());
+            map.put("cnt", s.getCnt());
+            map.put("step", s.getStep());
+            return map;
+        }).toList();
+    }
+
+
 }
