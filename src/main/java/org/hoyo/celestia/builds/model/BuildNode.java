@@ -1,0 +1,35 @@
+package org.hoyo.celestia.builds.model;
+
+import lombok.Data;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+
+@Data
+@Node
+public class BuildNode {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private Integer level;
+    private String skillListString;
+    private Boolean isStatic;
+    private String buildName = "perhaps_feixiao";
+    //not including data from honker_characters.json since that information
+    //is only needed on the frontend, and it can be accessed there
+
+    //fightprops is going to be a relation to the build
+    /*
+    * use metaFile to get required level stats of the character: (level-1)*add + base = base_stat_value
+    * use equipment to get weapon base stats
+    * enumerate artifact stats
+    *
+    * most difficult part is to get the talent stats
+    * getting skillids from skillidlist, ex: 12202XX where 1220 is the avatarId, 2 is the series of skills which give stat buffs, we need to add those
+    *
+    * these details are in tree in metaFile (well not yet, they need to be added)
+    * */
+
+    //relation going to relicNode named EQUIPS_RELIC
+    // prop - type Integer
+}

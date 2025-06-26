@@ -3,16 +3,14 @@ package org.hoyo.celestia.user.service;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import org.hoyo.celestia.subloaders.service.SubloaderService;
-import org.hoyo.celestia.timeouts.services.TimeoutService;
+import org.hoyo.celestia.timeouts.service.TimeoutService;
 import org.hoyo.celestia.user.UserRepository;
-import org.hoyo.celestia.user.model.AvatarDetail;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
