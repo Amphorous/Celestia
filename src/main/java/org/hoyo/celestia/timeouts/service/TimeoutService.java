@@ -1,12 +1,9 @@
-package org.hoyo.celestia.timeouts.services;
+package org.hoyo.celestia.timeouts.service;
 
 import org.hoyo.celestia.timeouts.TimeoutRepository;
 import org.hoyo.celestia.timeouts.model.Timeout;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 

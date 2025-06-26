@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import org.hoyo.celestia.loaders.StoreRepository;
 import org.hoyo.celestia.loaders.WeaponNodeRepository;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
 import org.hoyo.celestia.loaders.model.*;
-import org.hoyo.celestia.loaders.model.relations.ContainsWeapon;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,6 @@ public class WeaponLoaderService {
 
     public String loadWeaponsFromFile(){
         String honkerWepsPath = "src/main/java/org/hoyo/celestia/assets/honker_weps.json";
-        String honkerMetaPath = "src/main/java/org/hoyo/celestia/assets/honker_meta.json";
 
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
