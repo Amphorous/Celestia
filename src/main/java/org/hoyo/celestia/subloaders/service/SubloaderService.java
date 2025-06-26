@@ -58,7 +58,7 @@ public class SubloaderService {
         return true;
     }
 
-    Boolean shouldICalulateAgain(AvatarDetail character, String uid, String characterSkillListString){
+    public Boolean shouldICalulateAgain(AvatarDetail character, String uid, String characterSkillListString){
 
         //if the check breaks later for a character which is being read for the first time, uncomment this
 //        if(!buildRepository.hasBuilds(uid, character.getAvatarId())){
@@ -75,20 +75,4 @@ public class SubloaderService {
         return false;
     }
 
-    String calculateRelicId(Relic relic){
-        try {
-            String relicId="";
-            relicId+=relic.getTid();
-            relicId+=relic.getMainAffixId()+"_";
-            ArrayList<SubAffix> subAffixList = relic.getSubAffixList();
-            for(SubAffix subAffix : subAffixList){
-                relicId+=subAffix.getAffixId()+"-"+subAffix.getCnt()+"-"+subAffix.getStep()+"_";
-            }
-            return relicId;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Unable to calculate relic ID");
-            return "INVALID";
-        }
-    }
 }
