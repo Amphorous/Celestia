@@ -2,9 +2,7 @@ package org.hoyo.celestia.subloaders.service;
 
 import org.hoyo.celestia.builds.BuildNodeRepository;
 import org.hoyo.celestia.builds.UIDNodeRepository;
-import org.hoyo.celestia.user.model.AvatarDetail;
-import org.hoyo.celestia.user.model.Skill;
-import org.hoyo.celestia.user.model.User;
+import org.hoyo.celestia.user.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,4 +75,20 @@ public class SubloaderService {
         return false;
     }
 
+    String calculateRelicId(Relic relic){
+        try {
+            String relicId="";
+            relicId+=relic.getTid();
+            relicId+=relic.getMainAffixId()+"_";
+            ArrayList<SubAffix> subAffixList = relic.getSubAffixList();
+            for(SubAffix subAffix : subAffixList){
+                relicId+=subAffix.getAffixId()+"-"+subAffix.getCnt()+"-"+subAffix.getStep()+"_";
+            }
+            return relicId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Unable to calculate relic ID");
+            return "INVALID";
+        }
+    }
 }
