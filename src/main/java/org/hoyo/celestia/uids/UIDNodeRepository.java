@@ -1,6 +1,6 @@
-package org.hoyo.celestia.builds;
+package org.hoyo.celestia.uids;
 
-import org.hoyo.celestia.builds.model.UIDNode;
+import org.hoyo.celestia.uids.model.UIDNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
