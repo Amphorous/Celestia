@@ -14,6 +14,7 @@ public class BuildNode {
     private Integer level;
     private String skillListString;
     private Boolean isStatic;
+    private Boolean isHidden = false;
     private String buildName = "perhaps_feixiao";
     //not including data from honker_characters.json since that information
     //is only needed on the frontend, and it can be accessed there
@@ -32,4 +33,7 @@ public class BuildNode {
 
     //relation going to relicNode named EQUIPS_RELIC
     // prop - type Integer
+
+    //relation going to FightPropNode named FIGHT_PROPS
+    // no props
 }

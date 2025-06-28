@@ -1,17 +1,18 @@
-package org.hoyo.celestia.builds.model;
+package org.hoyo.celestia.fightprops.model;
 
 import lombok.Data;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 
+import java.util.Map;
+
 @Data
 @Node
-public class UIDNode {
+public class FightPropNode {
+
     @Id
     @GeneratedValue
     private Long id;
-    private String uid;
-
-    //relations to builds and relics
+    private Map<String, Double> stats;
 }

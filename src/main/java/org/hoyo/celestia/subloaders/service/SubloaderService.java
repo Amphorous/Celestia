@@ -1,21 +1,28 @@
 package org.hoyo.celestia.subloaders.service;
 
 import org.hoyo.celestia.builds.BuildNodeRepository;
-import org.hoyo.celestia.builds.UIDNodeRepository;
+import org.hoyo.celestia.uids.UIDNodeRepository;
+import org.hoyo.celestia.relics.RelicNodeRepository;
+import org.hoyo.celestia.relics.service.CreateRelicService;
 import org.hoyo.celestia.user.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 @Service
 public class SubloaderService {
 
     private final UIDNodeRepository uidNodeRepository;
     private final BuildNodeRepository buildNodeRepository;
+    private final RelicNodeRepository relicNodeRepository;
+    private final CreateRelicService createRelicService;
 
-    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository) {
+    public SubloaderService(UIDNodeRepository uidNodeRepository, BuildNodeRepository buildNodeRepository, RelicNodeRepository relicNodeRepository, CreateRelicService createRelicService) {
         this.uidNodeRepository = uidNodeRepository;
         this.buildNodeRepository = buildNodeRepository;
+        this.relicNodeRepository = relicNodeRepository;
+        this.createRelicService = createRelicService;
     }
 
     public Boolean userSubloader(User user){
@@ -52,6 +59,10 @@ public class SubloaderService {
                 characterSkillListString += String.valueOf(skill.getLevel());
             }
             Boolean shouldI = shouldICalulateAgain(character, user.getUid(), characterSkillListString);
+            if(shouldI){
+                //calculate
+
+            }
 
         }
         //this marks the end of subloading, having read the user builds
@@ -64,15 +75,29 @@ public class SubloaderService {
 //        if(!buildRepository.hasBuilds(uid, character.getAvatarId())){
 //            return true;
 //        }
+        Boolean flag = false;
         Integer level = character.getLevel();
 
         //characterSkillListString holds SkillListString for the current character build you're reading through
         //get level, create skillliststring, query neo for b:BuildNode {level: $level, skillliststing: $skillliststing}
         if(!buildNodeRepository.hasLevelsOnStaticBuild(uid, character.getAvatarId(), characterSkillListString, level)){
-            return true;
+            flag = true;
+        }
+        Set<String> staticNodeRelicIdSet = relicNodeRepository.getAllRelicIdsFromStaticNode(uid, character.getAvatarId(), true);
+        Set<String> currentRelicIdSet = createRelicService.getRelicIdSetFromAvatarDetails(character);
+        if(!staticNodeRelicIdSet.equals(currentRelicIdSet)){
+            //check which relicIds are new among the set, then see if the "new" relicIds exist in DB, insert if they don't
+            currentRelicIdSet.removeAll(staticNodeRelicIdSet);
+            for(String relicId : currentRelicIdSet){
+                if(!relicNodeRepository.existsRelic(uid, relicId)){
+                    Integer pos = ((int) relicId.charAt(0)) - 1;
+                    createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId);
+                }
+            }
+            flag = true;
         }
 
-        return false;
+        return flag;
     }
 
 }
