@@ -16,8 +16,8 @@ public class RelicNodeTestController {
     }
 
     @PostMapping("/test")
-    public ResponseEntity<String> test(@RequestParam String uid, @RequestBody Relic relic) {
-        createRelicService.createRelicNode(relic, uid);
+    public ResponseEntity<String> test(@RequestParam String uid, @RequestParam String relicId, @RequestBody Relic relic) {
+        createRelicService.createRelicNode(relic, uid, relicId);
         return ResponseEntity.ok("Success");
     }
 }

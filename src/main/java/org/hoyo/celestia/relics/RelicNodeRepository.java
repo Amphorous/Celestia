@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
@@ -41,7 +42,7 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
             
     RETURN DISTINCT r
             
-""")
+    """)
     RelicNode insertRelic(
             String relicId,
             String uid,
@@ -60,4 +61,11 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
             RETURN EXISTS( (:UIDNode {uid: $uid})-[:RELIC]->(:RelicNode {relicId: $relicId}) )
             """)
     Boolean existsRelic(String relicId, String uid);
+
+    @Query("""
+            MATCH (u:UIDNode {UID: $uid})-[:OWNS_BUILD]->(b:BuildNode {avatarId: $avatarId, isStatic: $isStatic})
+            MATCH (b)-[:EQUIPS_RELIC]->(r:RelicNode)
+            RETURN COLLECT(DISTINCT r.RelicId) AS relicIds
+            """)
+    Set<String> getAllRelicIdsFromStaticNode(String uid, String avatarId, Boolean isStatic);
 }
