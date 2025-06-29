@@ -67,19 +67,18 @@ public class FightPropService {
             }
         }
 
-
-
-
         //finally get trace stats using AAAA2XX as skillId from metaFile.tree
         for(Skill skill : character.getSkillTreeList()){
             String pointId = skill.getPointId().toString();
             if(pointId.charAt(pointId.length()-3)=='2'){
-                if(skill.getLevel()=='1'){
+                if(skill.getLevel()==1){
                     //now we need to add the stat value to fightpropmap
                     Map<String, Double> stat = localMetaFile.getTree().get(pointId).get("1").get("props");
                     for(Map.Entry<String, Double> entry : stat.entrySet()) {
+
                         String key = entry.getKey();
                         Double value = entry.getValue();
+
                         if(key.substring(key.length()-4).equalsIgnoreCase("base")){
                             key = key.substring(0,key.length()-4);
                         }
@@ -89,6 +88,13 @@ public class FightPropService {
             }
         }
         //metafile.getTree().get("skillid").get("1").get("props") <- this is a "map" of props, just iterate and add to set/add value to the record in fightprop
+
+        //do set effects now
+
+
+
+        //this is after all static stat calcs are over
+        fightPropMap.put("SPRatio",fightPropMap.getOrDefault("SPRatio",0.0)+1);
         fightPropNode.setStats(fightPropMap);
 
         System.out.println("Av ID: "+character.getAvatarId()+":::::::::::::::::::::::::::");
