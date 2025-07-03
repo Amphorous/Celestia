@@ -1,4 +1,4 @@
-package org.hoyo.celestia.loaders.model;
+package org.hoyo.celestia.loaders.model.metaModel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -27,4 +27,14 @@ public class HonkerMetaObject {
                         >
                     >
                 > tree;
+
+        private Map<String,
+                    Map<String,
+                        Map<String,
+                            Map<String, Double>
+                        >
+                    >
+                > equipmentSkill;
+
+        private RelicMetaProperty relic; //this is only set skill
 }
