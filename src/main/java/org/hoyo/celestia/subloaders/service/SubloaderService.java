@@ -60,7 +60,16 @@ public class SubloaderService {
             }
             Boolean shouldI = shouldICalulateAgain(character, user.getUid(), characterSkillListString);
             if(shouldI){
-                //calculate
+                // look for build with character.avatarId and isStatic == true and go to its fightpropnode and detach delete it
+                // look for build with character.avatarId and isStatic == true and detach delete it
+
+                // create a buildnode (whose isStatic == true) with the existing information
+
+                // create links from buildnode (whose isStatic == true) to corresponding relics
+
+                // calculate fightpropnode and link to buildnode (whose isStatic == true)
+
+                // link buildnode
 
             }
 
@@ -90,7 +99,10 @@ public class SubloaderService {
             currentRelicIdSet.removeAll(staticNodeRelicIdSet);
             for(String relicId : currentRelicIdSet){
                 if(!relicNodeRepository.existsRelic(uid, relicId)){
+                    //this relic id is something that was made by us
                     Integer pos = ((int) relicId.charAt(0)) - 1;
+                    //this is making a relic node at uid->relic-><here> with the substats dangling from it
+                    //therefore when you want to link these to a build then you must search for uid->relics->thisrelic
                     createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId);
                 }
             }

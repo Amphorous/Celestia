@@ -1,8 +1,10 @@
 package org.hoyo.celestia.fightprops.service;
 
+import org.hoyo.celestia.buffEffects.model.TeamMemberDTO;
+import org.hoyo.celestia.buffEffects.service.StaticEffects;
 import org.hoyo.celestia.fightprops.model.FightPropNode;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
-import org.hoyo.celestia.loaders.model.HonkerMetaObject;
+import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
 import org.hoyo.celestia.user.model.AvatarDetail;
 import org.hoyo.celestia.user.model.Props;
 import org.hoyo.celestia.user.model.Relic;
@@ -16,12 +18,14 @@ import java.util.Map;
 public class FightPropService {
 
     private final GlobalMetaFileLoader globalMetaFileLoader;
+    private final StaticEffects staticEffects;
 
-    public FightPropService(GlobalMetaFileLoader globalMetaFileLoader) {
+    public FightPropService(GlobalMetaFileLoader globalMetaFileLoader, StaticEffects staticEffects) {
         this.globalMetaFileLoader = globalMetaFileLoader;
+        this.staticEffects = staticEffects;
     }
 
-    public FightPropNode getFightPropMap(AvatarDetail character){
+    public FightPropNode getFightPropNode(AvatarDetail character){
         FightPropNode fightPropNode = new FightPropNode();
 
         //get character base stats from metaFile
@@ -56,8 +60,10 @@ public class FightPropService {
             fightPropMap.put(prop.getType(),prop.getValue()+fightPropMap.getOrDefault(prop.getType(),0.0));
         }
 
+        Map<Integer, Integer> relicSets = new HashMap<>();
         //iterate relics to get all stats from there
         for(Relic relic:character.getRelicList()){
+            relicSets.put(relic.get_flat().getSetID(), relicSets.getOrDefault(relic.get_flat().getSetID(), 0) + 1);
             for(Props prop : relic.get_flat().getProps()){
                 String key = prop.getType();
                 if(key.substring(key.length()-4).equalsIgnoreCase("base")){
@@ -76,13 +82,7 @@ public class FightPropService {
                     Map<String, Double> stat = localMetaFile.getTree().get(pointId).get("1").get("props");
                     for(Map.Entry<String, Double> entry : stat.entrySet()) {
 
-                        String key = entry.getKey();
-                        Double value = entry.getValue();
-
-                        if(key.substring(key.length()-4).equalsIgnoreCase("base")){
-                            key = key.substring(0,key.length()-4);
-                        }
-                        fightPropMap.put(key, fightPropMap.getOrDefault(key,0.0)+value);
+                        StaticEffects.effectRoutingStatAdder(fightPropMap, entry);
                     }
                 }
             }
@@ -90,18 +90,24 @@ public class FightPropService {
         //metafile.getTree().get("skillid").get("1").get("props") <- this is a "map" of props, just iterate and add to set/add value to the record in fightprop
 
         //do set effects now
+        TeamMemberDTO currentCharacter = new TeamMemberDTO();
+        currentCharacter.setStats(fightPropMap);
+        currentCharacter.setWeaponId(character.getEquipment().getTid());
+        currentCharacter.setWeaponRank(character.getEquipment().getRank());
+        currentCharacter.setRelicSets(relicSets);
 
+        staticEffects.effectSwitch(currentCharacter);
 
 
         //this is after all static stat calcs are over
         fightPropMap.put("SPRatio",fightPropMap.getOrDefault("SPRatio",0.0)+1);
         fightPropNode.setStats(fightPropMap);
 
-        System.out.println("Av ID: "+character.getAvatarId()+":::::::::::::::::::::::::::");
-        for(Map.Entry<String, Double> entry : fightPropMap.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
-        System.out.println("END OF AV::::::::::::::::::");
+//        System.out.println("::::::::::::::::::::::::" + character.getAvatarId() + "::::::::::::::::::::::::");
+//        for(Map.Entry<String, Double> entry : currentCharacter.getStats().entrySet()) {
+//            System.out.println(entry.getKey() + ": " + entry.getValue());
+//        }
+//        System.out.println("::::::::::::::::::::::::" + character.getAvatarId() + "::::::::::::::::::::::::");
 
         return fightPropNode;
     }
