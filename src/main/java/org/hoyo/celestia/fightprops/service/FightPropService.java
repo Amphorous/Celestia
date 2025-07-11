@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class FightPropService {
@@ -38,26 +39,88 @@ public class FightPropService {
 
         Map<String, Double> fightPropMap = new HashMap<>();
         Map<String, Double> currentAscensionStats = localMetaFile.getAvatar().get(avatarId).get(promotion);
-        Double addValue = null;
+
+//        Double addValue = null;
+//        for(Map.Entry<String, Double> entry : currentAscensionStats.entrySet()) {
+//            String key = entry.getKey();
+//            boolean check = (key.substring(key.length()-3)).equalsIgnoreCase("add");
+//            if(check) {
+//                addValue = entry.getValue();
+//                continue;
+//            }
+//            if (addValue != null) {
+//                Double finalStatValue = (level - 1)*addValue + entry.getValue();
+//                String finalKey = "Base" + key.substring(0, key.length()-4);
+//                fightPropMap.put(finalKey, finalStatValue);
+//                addValue = null;
+//                continue;
+//            }
+//            fightPropMap.put(key, entry.getValue());
+//        }
+
+        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        //not tested, there might be stat errors when the application runs
+        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+        //following maps keep track of the "Add" and "Base" values encountereed when reading through a character's
+        //promotion, they are then used to calculate the final base stat after finding the required pair
+        Map<String, Double> foundBaseValues = new HashMap<>();
+        Map<String, Double> foundAddValues = new HashMap<>();
         for(Map.Entry<String, Double> entry : currentAscensionStats.entrySet()) {
             String key = entry.getKey();
-            boolean check = (key.substring(key.length()-3)).equalsIgnoreCase("add");
-            if(check) {
-                addValue = entry.getValue();
+            boolean checkForBase = (key.substring(key.length()-4)).equalsIgnoreCase("base");
+            boolean checkForAdd = (key.substring(key.length()-3)).equalsIgnoreCase("add");
+            if(checkForBase) {
+                String substringKey = key.substring(0, key.length()-4);
+                // see if foundAddValues has the required substring key (ex: "Attack")
+                if(foundAddValues.containsKey(substringKey)) {
+                    Double requiredBase = entry.getValue();
+                    Double requiredAdd = foundAddValues.get(substringKey);
+                    Double finalStatValue = (level - 1)*requiredAdd + requiredBase;
+                    String finalKey = "Base" + substringKey;
+                    fightPropMap.put(finalKey, finalStatValue);
+                    foundAddValues.remove(substringKey);
+                }
+                else {
+                    foundBaseValues.put(substringKey, entry.getValue());
+                }
                 continue;
             }
-            if (addValue != null) {
-                Double finalStatValue = (level - 1)*addValue + entry.getValue();
-                String finalKey = "Base" + key.substring(0, key.length()-4);
-                fightPropMap.put(finalKey, finalStatValue);
-                addValue = null;
+            if(checkForAdd) {
+                String substringKey = key.substring(0, key.length()-3);
+                if(foundBaseValues.containsKey(substringKey)) {
+                    Double requiredBase = foundBaseValues.get(substringKey);
+                    Double requiredAdd = entry.getValue();
+                    Double finalStatValue = (level - 1)*requiredAdd + requiredBase;
+                    String finalKey = "Base" + substringKey;
+                    fightPropMap.put(finalKey, finalStatValue);
+                    foundBaseValues.remove(substringKey);
+                }
+                else {
+                    foundAddValues.put(substringKey, entry.getValue());
+                }
                 continue;
             }
+
             fightPropMap.put(key, entry.getValue());
         }
+
+        //foundBaseValues might have leftover base stats which had no corresponding adds
+        //insert all of them as is into the fightpropmap
+        for(Map.Entry<String, Double> entry : foundBaseValues.entrySet()) {
+            String key = entry.getKey();
+            Double finalStatValue = entry.getValue();
+            String finalKey = "Base" + key;
+            fightPropMap.put(finalKey, finalStatValue);
+        }
+
         //wep stats calc
-        for(Props prop : character.getEquipment().get_flat().getProps()){
-            fightPropMap.put(prop.getType(),prop.getValue()+fightPropMap.getOrDefault(prop.getType(),0.0));
+        try {
+            for(Props prop : character.getEquipment().get_flat().getProps()){
+                fightPropMap.put(prop.getType(),prop.getValue()+fightPropMap.getOrDefault(prop.getType(),0.0));
+            }
+        } catch (NullPointerException e) {
+            //no weapon
         }
 
         Map<Integer, Integer> relicSets = new HashMap<>();
@@ -92,8 +155,13 @@ public class FightPropService {
         //do set effects now
         TeamMemberDTO currentCharacter = new TeamMemberDTO();
         currentCharacter.setStats(fightPropMap);
-        currentCharacter.setWeaponId(character.getEquipment().getTid());
-        currentCharacter.setWeaponRank(character.getEquipment().getRank());
+        try {
+            currentCharacter.setWeaponId(character.getEquipment().getTid());
+            currentCharacter.setWeaponRank(character.getEquipment().getRank());
+        } catch (NullPointerException e) {
+            currentCharacter.setWeaponId("unknown");
+            currentCharacter.setWeaponRank(-1);
+        }
         currentCharacter.setRelicSets(relicSets);
 
         staticEffects.effectSwitch(currentCharacter);
