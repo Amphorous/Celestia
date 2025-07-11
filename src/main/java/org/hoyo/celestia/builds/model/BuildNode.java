@@ -15,6 +15,7 @@ public class BuildNode {
     private String skillListString;
     private Boolean isStatic;
     private Boolean isHidden = false;
+    private String avatarId;
     private String buildName = "perhaps_feixiao";
     //not including data from honker_characters.json since that information
     //is only needed on the frontend, and it can be accessed there
@@ -31,8 +32,8 @@ public class BuildNode {
     * these details are in tree in metaFile (well not yet, they need to be added)
     * */
 
-    //relation going to relicNode named EQUIPS_RELIC
-    // prop - type Integer
+    //relation going to RelicNode named EQUIPS_RELIC
+    // no props (can get the relic of a specific position using r.type if r is a relic)
 
     //relation going to FightPropNode named FIGHT_PROPS
     // no props

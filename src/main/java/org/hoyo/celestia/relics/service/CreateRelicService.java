@@ -22,7 +22,7 @@ public class CreateRelicService {
         this.subAffixNodeRepository = subAffixNodeRepository;
     }
 
-    public String calculateRelicId(Relic relic){
+    public static String calculateRelicId(Relic relic){
         try {
             String relicId = "";
             relicId += relic.getType() + ":";
@@ -54,7 +54,7 @@ public class CreateRelicService {
         List<SubAffixNode> subAffixNodes = getSubAffixNodes(relic);
 
         relicNodeRepository.insertRelic(
-                relicNode.getRelicId(),
+                relicId,
                 uid,
                 relicNode.getMainAffixId(),
                 relicNode.getTid(),
@@ -89,6 +89,7 @@ public class CreateRelicService {
 
     private static RelicNode getRelicNode(Relic relic) {
         RelicNode relicNode = new RelicNode();
+        //relicNode.setRelicId(calculateRelicId(relic));
         relicNode.setMainAffixId(String.valueOf(relic.getMainAffixId()));
         relicNode.setTid(relic.getTid());
         relicNode.setType(String.valueOf(relic.getType()));
