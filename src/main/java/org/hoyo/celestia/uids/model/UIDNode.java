@@ -16,6 +16,9 @@ public class UIDNode {
 
     //relations to builds and relics
 
-    //relation to BuildNode called OWNS_BUILD
+    //relation to BuildNode called HAS_BUILD
+    // (prop - String avatarId) no props
+
+    //relation to RelicNode called OWNS_RELIC
     // no props
 }
