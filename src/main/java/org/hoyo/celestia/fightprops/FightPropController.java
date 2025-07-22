@@ -2,8 +2,6 @@ package org.hoyo.celestia.fightprops;
 
 import org.hoyo.celestia.fightprops.service.FightPropService;
 import org.hoyo.celestia.user.model.AvatarDetail;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +19,6 @@ public class FightPropController {
 
     @PostMapping("/test")
     public void testFightProp(@RequestBody AvatarDetail character) {
-        fightPropService.getFightPropMap(character);
+        fightPropService.getFightPropNode(character);
     }
 }

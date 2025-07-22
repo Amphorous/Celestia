@@ -42,3 +42,20 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+task generateHonkerMeta(type: Exec) {
+    description = 'Generates honker_meta.json using Python'
+    group = 'build setup'
+
+    def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+    def pythonCommand = isWindows ? 'python' : 'python3'
+
+    commandLine pythonCommand, 'scripts/regen_honker_meta.py'
+
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+compileJava.dependsOn(generateHonkerMeta)
+
+

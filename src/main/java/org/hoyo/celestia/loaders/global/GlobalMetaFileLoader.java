@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
-import org.hoyo.celestia.loaders.model.HonkerMetaObject;
+import org.hoyo.celestia.loaders.model.metaModel.HonkerMetaObject;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -20,11 +20,14 @@ public class GlobalMetaFileLoader {
 
     @PostConstruct
     public void init() {
+
+        //previously, this file read the honker_meta.json directly to make this file,
+
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
                 .build();
 
-        String honkerMetaPath = "src/main/java/org/hoyo/celestia/assets/honker_meta.json";
+        String honkerMetaPath = "src/main/resources/assets/honker_meta.json";
         JsonNode honkerMetaRootNode = null;
         try{
             honkerMetaRootNode = mapper.readTree(new File(honkerMetaPath));
