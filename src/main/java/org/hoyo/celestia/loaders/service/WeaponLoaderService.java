@@ -41,7 +41,7 @@ public class WeaponLoaderService {
     }
 
     public String loadWeaponsFromFile(){
-        String honkerWepsPath = "src/main/java/org/hoyo/celestia/assets/honker_weps.json";
+        String honkerWepsPath = "scripts/assetsNew/weapons.json";
 
         ObjectMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
@@ -85,11 +85,11 @@ public class WeaponLoaderService {
         Double weaponBaseHP = 0.0;
         try {
             Map<String, Double> weaponAsc6Stats = metaFile.getEquipment().get(weaponId).get("6");
-            weaponBaseAtk = (79*weaponAsc6Stats.get("AttackAdd"))
+            weaponBaseAtk = (79*weaponAsc6Stats.get("BaseAttackAdd"))
                             + weaponAsc6Stats.get("BaseAttack");
-            weaponBaseDef = (79*weaponAsc6Stats.get("DefenceAdd"))
+            weaponBaseDef = (79*weaponAsc6Stats.get("BaseDefenceAdd"))
                             + weaponAsc6Stats.get("BaseDefence");;
-            weaponBaseHP = (79*weaponAsc6Stats.get("HPAdd"))
+            weaponBaseHP = (79*weaponAsc6Stats.get("BaseHPAdd"))
                             + weaponAsc6Stats.get("BaseHP");;
         } catch (Exception e) {
             System.err.println("Version mismatch between files: honker_weps.json and honker_meta.json");
