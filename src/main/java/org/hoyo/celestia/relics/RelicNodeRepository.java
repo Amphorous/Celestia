@@ -25,11 +25,11 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         mainType: $mainType,
         mainValue: $mainValue
     })
-            
+    
     WITH r
     MATCH (u:UIDNode {uid: $uid})
-    CREATE (u)-[:RELIC]->(r)
-            
+    CREATE (u)-[:OWNS_RELIC]->(r)
+    
     WITH r, $subAffixes AS subAffixes
     UNWIND subAffixes AS sa
     CREATE (s:SubAffixNode {
@@ -39,9 +39,9 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
         step: sa.step
     })
     CREATE (r)-[:SUBAFFIX]->(s)
-            
+    
     RETURN DISTINCT r
-            
+    
     """)
     RelicNode insertRelic(
             String relicId,
@@ -58,14 +58,14 @@ public interface RelicNodeRepository extends Neo4jRepository<RelicNode, Long> {
     );
 
     @Query("""
-            RETURN EXISTS( (:UIDNode {uid: $uid})-[:RELIC]->(:RelicNode {relicId: $relicId}) )
+            RETURN EXISTS( (:UIDNode {uid: $uid})-[:OWNS_RELIC]->(:RelicNode {relicId: $relicId}) )
             """)
     Boolean existsRelic(String relicId, String uid);
 
     @Query("""
-            MATCH (u:UIDNode {UID: $uid})-[:OWNS_BUILD]->(b:BuildNode {avatarId: $avatarId, isStatic: $isStatic})
+            MATCH (u:UIDNode {uid: $uid})-[:HAS_BUILD]->(b:BuildNode {avatarId: $avatarId, isStatic: $isStatic})
             MATCH (b)-[:EQUIPS_RELIC]->(r:RelicNode)
-            RETURN COLLECT(DISTINCT r.RelicId) AS relicIds
+            RETURN COLLECT(DISTINCT r.relicId) AS relicIds
             """)
     Set<String> getAllRelicIdsFromStaticNode(String uid, String avatarId, Boolean isStatic);
 }
