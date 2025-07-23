@@ -9,6 +9,7 @@ import org.hoyo.celestia.relics.RelicNodeRepository;
 import org.hoyo.celestia.relics.service.CreateRelicService;
 import org.hoyo.celestia.user.model.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class SubloaderService {
         this.fightPropService = fightPropService;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Boolean userSubloader(User user){
         if(!user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection()){
             //users builds are private, return false
@@ -59,10 +61,10 @@ public class SubloaderService {
             //make a build object for each character
             //-->
             ArrayList<Skill> skillListTree = character.getSkillTreeList();
-            String characterSkillListString = "";
-            for(Skill skill : skillListTree){
-                characterSkillListString += String.valueOf(skill.getLevel());
-            }
+            String characterSkillListString = skillListTree.stream()
+                    .map(skill -> String.valueOf(skill.getLevel()))
+                    .collect(Collectors.joining());
+
 
             BuildCheckResult result = shouldICalulateAgain(character, user.getUid(), characterSkillListString);
             if(result.shouldI()){
@@ -92,12 +94,46 @@ public class SubloaderService {
                                 e -> (Object) e.getValue()
                         ));
 
-                buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
-                        (user.getUid(), character.getAvatarId(),
-                                character.getLevel(), characterSkillListString,
-                                true, false,
-                                newStaticBuild.getBuildName(),
-                                fightPropMapObject, currentRelicIdSet);
+                Equipment weapon = character.getEquipment();
+
+                if (weapon != null) {
+                    Integer weaponLevel = weapon.getLevel();
+                    Integer refineWeapon = weapon.getRank();
+                    Integer weaponAscension = weapon.getPromotion();
+                    Double baseHP = 0.0;
+                    Double baseDefense = 0.0;
+                    Double baseAtk = 0.0;
+                    String weaponId = weapon.getTid();
+                    for (Props prop : weapon.get_flat().getProps()){
+                        if ((prop.getType()).equalsIgnoreCase("BaseHP")){
+                            baseHP += prop.getValue();
+                        } else if ((prop.getType()).equalsIgnoreCase("BaseDefence")){
+                            baseDefense += prop.getValue();
+                        } else if ((prop.getType()).equalsIgnoreCase("BaseAttack")){
+                            baseAtk += prop.getValue();
+                        }
+                    }
+
+                    buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodesAndAlsoLinkTheWeaponNode
+                            (user.getUid(), character.getAvatarId(),
+                                    character.getLevel(), characterSkillListString,
+                                    true, false,
+                                    newStaticBuild.getBuildName(),
+                                    fightPropMapObject, currentRelicIdSet,
+                                    weaponId, weaponLevel,
+                                    refineWeapon, weaponAscension,
+                                    baseHP, baseDefense,
+                                    baseAtk
+                            );
+                } else {
+                    buildNodeRepository.removeIsStaticBuildAndItsFightPropNodeThenInsertANewIsStaticBuildAndItsFightPropNodeAndAlsoLinkTheBuildNodeToItsRelicNodes
+                            (user.getUid(), character.getAvatarId(),
+                                    character.getLevel(), characterSkillListString,
+                                    true, false,
+                                    newStaticBuild.getBuildName(),
+                                    fightPropMapObject, currentRelicIdSet
+                            );
+                }
             }
 
         }
@@ -123,6 +159,7 @@ public class SubloaderService {
         }
         Set<String> staticNodeRelicIdSet = relicNodeRepository.getAllRelicIdsFromStaticNode(uid, character.getAvatarId(), true);
         Set<String> currentRelicIdSet = (createRelicService.getRelicIdSetFromAvatarDetails(character));
+        Set<String> currentRelicIdSetToInsert = new HashSet<>(currentRelicIdSet);
         if(!staticNodeRelicIdSet.equals(currentRelicIdSet)){
             //check which relicIds are new among the set, then see if the "new" relicIds exist in DB, insert if they don't
             currentRelicIdSet.removeAll(staticNodeRelicIdSet);
@@ -139,7 +176,7 @@ public class SubloaderService {
             flag = true;
         }
 
-        return new BuildCheckResult(flag, currentRelicIdSet);
+        return new BuildCheckResult(flag, currentRelicIdSetToInsert);
     }
 
     public int getIndexByType(ArrayList<Relic> relics, Integer type) {
