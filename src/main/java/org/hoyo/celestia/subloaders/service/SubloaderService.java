@@ -163,6 +163,8 @@ public class SubloaderService {
         if(!staticNodeRelicIdSet.equals(currentRelicIdSet)){
             //check which relicIds are new among the set, then see if the "new" relicIds exist in DB, insert if they don't
             currentRelicIdSet.removeAll(staticNodeRelicIdSet);
+
+            //old logic
             for(String relicId : currentRelicIdSet){
                 if(!relicNodeRepository.existsRelic(uid, relicId)){
                     //this relic id is something that was made by us
@@ -173,6 +175,19 @@ public class SubloaderService {
                     createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId);
                 }
             }
+
+
+//            currentRelicIdSet.parallelStream().forEach(relicId -> {
+//                if(!relicNodeRepository.existsRelic(uid, relicId)){
+//                    //this relic id is something that was made by us
+//                    Integer type = Integer.parseInt(String.valueOf(relicId.charAt(0)));
+//                    Integer pos = getIndexByType(character.getRelicList(), type);
+//                    //this is making a relic node at uid->relic-><here> with the substats dangling from it
+//                    //therefore when you want to link these to a build then you must search for uid->relics->thisrelic
+//                    System.out.println("Trying to create relic: " + relicId + " for character: " + character.getAvatarId());
+//                    createRelicService.createRelicNode(character.getRelicList().get(pos), uid, relicId);
+//                }
+//            });
             flag = true;
         }
 
