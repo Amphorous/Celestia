@@ -17,7 +17,7 @@ public class UserDetailsFetchService {
         this.createUserService = createUserService;
     }
 
-    //this refreshes if the user isnt in the DB
+    //this refreshes if the user isnt in the DB, also region check function isnt here yet
     public ResponseEntity<NoRefreshUserDTO> getUserCardDetailsNoRefresh(String uid){
 
         if(!userRepository.existsById(uid)){
