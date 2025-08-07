@@ -32,6 +32,12 @@ public class UserController {
         return userDetailsFetchService.getUserCardDetailsNoRefresh(uid);
     }
 
+    //unoptimised approach
+    @GetMapping("/dashboard/refresh/{uid}")
+    public ResponseEntity<Boolean> getUpsertStatus(@PathVariable String uid){
+        return userDetailsFetchService.getHardRefreshStatus(uid);
+    }
+
     @GetMapping("/timeout/{uid}")
     public ResponseEntity<Long> timeoutUser(@PathVariable String uid){
         return timeoutService.timeLeft(uid);

@@ -3,8 +3,11 @@ package org.hoyo.celestia.user.service;
 import org.hoyo.celestia.user.DTOs.NoRefreshUserDTO;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 public class UserDetailsFetchService {
@@ -38,5 +41,16 @@ public class UserDetailsFetchService {
         NoRefreshUserDTO noRefreshUserDTO = userRepository.findUserCardByUid(uid);
         noRefreshUserDTO.setRegion("NONE");
         return ResponseEntity.ok(noRefreshUserDTO);
+    }
+
+    //after a hard refresh,
+    // true is returned if an update/insert occurs => if true is returned, frontend calls timeout and noRefresh
+    // false otherwise => if false is returned, frontend calls timeout and if timeout < 0 the button is greyed
+    public ResponseEntity<Boolean> getHardRefreshStatus(String uid){
+        ResponseEntity<String> upsertResponse = createUserService.upsertUser(uid);
+        if(upsertResponse.getStatusCode() == HttpStatus.OK && !Objects.equals(upsertResponse.getBody(), "User is not enka call yet.")){
+            return ResponseEntity.ok(true);
+        }
+        return ResponseEntity.ok(false);
     }
 }
