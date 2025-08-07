@@ -33,6 +33,10 @@ public class SubloaderService {
 
     @Transactional(rollbackFor = Exception.class)
     public Boolean userSubloader(User user){
+        if(user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection() == null){
+            //weird null
+            return false;
+        }
         if(!user.getDetailInfo().getPrivacySettingInfo().getDisplayCollection()){
             //users builds are private, return false
             return false;
