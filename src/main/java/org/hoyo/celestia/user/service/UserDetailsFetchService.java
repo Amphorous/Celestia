@@ -29,17 +29,29 @@ public class UserDetailsFetchService {
      * */
 
 
+    public String getRegionFromUid(String uid) {
+        return switch (uid.charAt(0)) {
+            case '0' -> "MHY";
+            case '1', '2', '5' -> "CN";
+            case '6' -> "NA";
+            case '7' -> "EU";
+            case '8' -> "ASIA";
+            case '9' -> "THM";
+            default -> "NONE";
+        };
+    }
+
     public ResponseEntity<NoRefreshUserDTO> getUserCardDetailsNoRefresh(String uid){
 
         if(!userRepository.existsById(uid)){
             User user = createUserService.getUser(uid);
             NoRefreshUserDTO noRefreshUserDTO = new NoRefreshUserDTO(user);
-            noRefreshUserDTO.setRegion("NONE");
+            noRefreshUserDTO.setRegion(getRegionFromUid(uid));
             return ResponseEntity.ok(noRefreshUserDTO);
         }
 
         NoRefreshUserDTO noRefreshUserDTO = userRepository.findUserCardByUid(uid);
-        noRefreshUserDTO.setRegion("NONE");
+        noRefreshUserDTO.setRegion(getRegionFromUid(uid));
         return ResponseEntity.ok(noRefreshUserDTO);
     }
 
