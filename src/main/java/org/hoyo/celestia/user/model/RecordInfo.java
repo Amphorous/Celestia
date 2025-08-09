@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RecordInfo {
-    private Integer achievementCount;
+    private Integer achievementCount; //noref
     private Integer bookCount;
     private Integer avatarCount;
     private Integer equipmentCount;

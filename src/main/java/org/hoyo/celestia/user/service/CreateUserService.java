@@ -4,7 +4,7 @@ import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import org.hoyo.celestia.subloaders.service.SubloaderService;
 import org.hoyo.celestia.timeouts.service.TimeoutService;
-import org.hoyo.celestia.user.UserRepository;
+import org.hoyo.celestia.user.repository.UserRepository;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
 import org.springframework.http.HttpStatus;
