@@ -34,6 +34,8 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
     implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.4'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     implementation ("io.github.openfeign:feign-core:11.9")
     implementation ("io.github.openfeign:feign-jackson:11.9")
@@ -43,12 +45,12 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-task generateHonkerMeta(type: Exec) {
+tasks.register('generateHonkerMeta', Exec) {
     description = 'Generates honker_meta.json using Python'
     group = 'build setup'
 
     def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
-    def pythonCommand = isWindows ? 'python' : 'python3'
+    def pythonCommand = isWindows ? 'py' : 'python3'
 
     commandLine pythonCommand, 'scripts/regen_honker_meta.py'
 
