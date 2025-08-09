@@ -2,8 +2,11 @@ package org.hoyo.celestia.timeouts.service;
 
 import org.hoyo.celestia.timeouts.TimeoutRepository;
 import org.hoyo.celestia.timeouts.model.Timeout;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -42,6 +45,18 @@ public class TimeoutService {
             newTimeout.setTimestamp(Instant.now());
             timeoutRepository.save(newTimeout);
         }
+    }
+
+    public ResponseEntity<Long> timeLeft(String uid) {
+        Optional<Timeout> optionalTimeout = timeoutRepository.findByUid(uid);
+        if(optionalTimeout.isPresent()){
+            Timeout timeout = optionalTimeout.get();
+            Instant savedTime = timeout.getTimestamp();
+            savedTime = savedTime.plusSeconds(60);
+            Instant currentTime = Instant.now();
+            return ResponseEntity.status(HttpStatus.OK).body(Duration.between(savedTime, currentTime).toSeconds());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(0L);
     }
 }
 
