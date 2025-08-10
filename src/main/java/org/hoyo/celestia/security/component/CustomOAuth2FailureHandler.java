@@ -18,15 +18,7 @@ public class CustomOAuth2FailureHandler implements AuthenticationFailureHandler 
             HttpServletResponse response,
             org.springframework.security.core.AuthenticationException exception
     ) throws IOException, ServletException {
-
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-
-        PrintWriter writer = response.getWriter();
-        writer.write("{\"message\": \"invalid login\"}");
-        writer.flush();
+        response.sendRedirect("http://localhost:5173/home");
     }
 }
 
