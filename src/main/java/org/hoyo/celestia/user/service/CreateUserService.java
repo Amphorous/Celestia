@@ -74,10 +74,14 @@ public class CreateUserService {
     }
 
     //this returns a user from enka or database (depending upon if the timout is satisfied) if uid is valid
+    //THIS ONLY RETURNS A USER DOESN'T SAVE THEM
     public User getUser(String uid){
         if (validateUid.validate(uid)){
             if(!timeoutService.canIEnkaCallYet(uid)){
-                return userRepository.findByUid(uid).get();
+                Optional<User> userInDb = userRepository.findByUid(uid);
+                if(userInDb.isPresent()){
+                    return userInDb.get();
+                }
             }
             FeignEnkaApiService feignService = Feign.builder()
                     .decoder(new JacksonDecoder())

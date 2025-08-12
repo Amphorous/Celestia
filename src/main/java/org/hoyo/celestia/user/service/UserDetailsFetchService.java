@@ -43,8 +43,9 @@ public class UserDetailsFetchService {
 
     public ResponseEntity<NoRefreshUserDTO> getUserCardDetailsNoRefresh(String uid){
 
-        if(!userRepository.existsById(uid)){
+        if(!userRepository.existsByUid(uid)){
             User user = createUserService.getUser(uid);
+            userRepository.save(user);
             NoRefreshUserDTO noRefreshUserDTO = new NoRefreshUserDTO(user);
             noRefreshUserDTO.setRegion(getRegionFromUid(uid));
             return ResponseEntity.ok(noRefreshUserDTO);
