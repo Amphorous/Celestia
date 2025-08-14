@@ -45,6 +45,9 @@ public class UserDetailsFetchService {
 
         if(!userRepository.existsByUid(uid)){
             User user = createUserService.getUser(uid);
+            if(user == null || !(user.getUid().equals(uid))){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
             userRepository.save(user);
             NoRefreshUserDTO noRefreshUserDTO = new NoRefreshUserDTO(user);
             noRefreshUserDTO.setRegion(getRegionFromUid(uid));

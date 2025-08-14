@@ -51,9 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/relics/{uid}/{pageNumber}")
-    public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(
-            @PathVariable String uid,
-            @PathVariable int pageNumber) {
+    public ResponseEntity<List<RelicProjectionDTO>> getUserRelics(@PathVariable String uid, @PathVariable int pageNumber) {
         return fetchRelicService.getUserRelicsForDisplay(uid, pageNumber);
     }
 
