@@ -29,6 +29,7 @@ public class FetchRelicService {
         return ResponseEntity.ok(relics);
     }
 
+    // add filter mode parameter which decides how we are sorting or filtering the results
     public ResponseEntity<List<RelicProjectionDTO>> getUserRelicsForDisplay(String uid, int pageNumber) {
         long skip = (long) (pageNumber - 1) * PAGE_LIMIT;
         List<RelicNode> relics = relicNodeRepository.findRelicsPaged(uid, skip, PAGE_LIMIT);

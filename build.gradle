@@ -1,63 +1,100 @@
+/*
+ * Project Build Configuration File
+ * ---------------------------------
+ * This Gradle build script configures a Spring Boot application
+ * with support for MongoDB, Neo4j, OpenAPI, OAuth2, and Feign clients.
+ * It also includes a custom build task to generate metadata via Python.
+ */
+
 plugins {
+    // Core Java plugin for compiling and running Java applications
     id 'java'
+
+    // Spring Boot plugin for building and running Spring Boot apps
     id 'org.springframework.boot' version '3.5.0'
+
+    // Handles dependency management for Spring projects
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.hoyo'
-version = '0.0.1-SNAPSHOT'
+group = 'org.hoyo'  // Defines the project's base package/group
+version = '0.0.1-SNAPSHOT'  // Version identifier for the current build
 
 java {
     toolchain {
+        // Specifies the Java version (Java 21) used to compile the project
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 configurations {
     compileOnly {
+        // Ensures annotation processors (like Lombok) are available only at compile-time
         extendsFrom annotationProcessor
     }
 }
 
 repositories {
+    // Fetch dependencies from Maven Central repository
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // --- Core Spring Boot dependencies ---
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'  // MongoDB integration
+    implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'    // Neo4j database support
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.5.7' // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-web'           // REST API + web server
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.4'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // --- Code generation and boilerplate reduction ---
+    compileOnly 'org.projectlombok:lombok'             // Lombok for getters/setters
+    annotationProcessor 'org.projectlombok:lombok'     // Annotation processing for Lombok
 
+    // --- Testing ---
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'  // Spring Boot test utilities
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'            // JUnit platform launcher
+
+    // --- API Documentation and Monitoring ---
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6' // Auto-generates Swagger UI
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.4.4' // Health, metrics, etc.
+
+    // --- Security & Authentication ---
+    implementation 'org.springframework.boot:spring-boot-starter-security'       // Basic security support
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'  // OAuth2 client integration
+
+    // --- Feign Client (for REST communication between services) ---
     implementation ("io.github.openfeign:feign-core:11.9")
     implementation ("io.github.openfeign:feign-jackson:11.9")
 }
 
 tasks.named('test') {
+    // Configures tests to use JUnit Platform
     useJUnitPlatform()
 }
 
 tasks.register('generateHonkerMeta', Exec) {
+    /*
+     * Custom Gradle task: generateHonkerMeta
+     * --------------------------------------
+     * Runs a Python script (scripts/regen_honker_meta.py)
+     * to generate a JSON metadata file (`honker_meta.json`)
+     * before the Java compilation step.
+     *
+     * Automatically detects the OS and uses the appropriate Python command.
+     */
     description = 'Generates honker_meta.json using Python'
     group = 'build setup'
 
     def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
     def pythonCommand = isWindows ? 'py' : 'python3'
 
+    // Command to execute the Python script
     commandLine pythonCommand, 'scripts/regen_honker_meta.py'
 
+    // Redirects script output to Gradle console
     standardOutput = System.out
     errorOutput = System.err
 }
 
+// Ensures the metadata generation runs before Java compilation
 compileJava.dependsOn(generateHonkerMeta)
-
-
