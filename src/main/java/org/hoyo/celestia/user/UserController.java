@@ -31,7 +31,7 @@ public class UserController {
 
     @GetMapping("/{uid}")
     public ResponseEntity<String> createUser(@PathVariable String uid){
-        return createUserService.upsertUser(uid);
+        return createUserService.upsertUser(uid).toResponseEntity();
     }
 
     @GetMapping("/dashboard/noRefresh/{uid}")
@@ -40,9 +40,12 @@ public class UserController {
     }
 
     //unoptimised approach
+    //after a hard refresh,
+    // true is returned if an update/insert occurs => if true is returned, frontend calls timeout and noRefresh
+    // false otherwise => if false is returned, frontend calls timeout and if timeout < 0 the button is greyed
     @GetMapping("/dashboard/refresh/{uid}")
     public ResponseEntity<Boolean> getUpsertStatus(@PathVariable String uid){
-        return userDetailsFetchService.getHardRefreshStatus(uid);
+        return createUserService.upsertUser(uid).isSuccess();
     }
 
     @GetMapping("/timeout/{uid}")
