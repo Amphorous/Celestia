@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "affixes": {
+        "sha": "c912687f3b2947ed5236037f9496d12280c17d38"
+      },
+      "avatars": {
+        "sha": "4b7881b2797bb74dbae1928906b85dc120b9c103"
+      },
+      "hsr": {
+        "sha": "1e23fd57c1883f1f92d1355f76bacb6bd7de406a"
+      },
+      "pfps": {
+        "sha": "714d2d956b646db60107ba7b143e4cb3ac19aa93"
+      },
+      "ranks": {
+        "sha": "7fd397177b3ca496aa7a7a8e781cae820ed494ea"
+      },
+      "relics": {
+        "sha": "bb1aec6b8f52c810285798d9ac264ffb877a71c8"
+      },
+      "skills": {
+        "sha": "16d3d6eac161aa17e2dbc5f653ec5b1eefca2df7"
+      },
+      "tree": {
+        "sha": "16b9b5da815fd320551a2b771d742e2bfc8a0d66"
+      },
+      "weapons": {
+        "sha": "535f9b38caf4c5ab7f0bac96cb5a164784e93755"
+      }
+    }
+  ],
+  "version": "v3"
+}
