@@ -4,6 +4,9 @@ import lombok.Data;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.List;
 
 @Data
 @Node
@@ -21,6 +24,6 @@ public class RelicNode {
     private String mainType;
     private Double mainValue;
 
-    //relation to SubAffixNode called SUBAFFIX
-    // no props
+    @Relationship(type = "SUBAFFIX", direction = Relationship.Direction.OUTGOING)
+    private List<SubAffixNode> subAffixes;
 }
