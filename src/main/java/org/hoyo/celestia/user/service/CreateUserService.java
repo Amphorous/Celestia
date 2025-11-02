@@ -90,10 +90,8 @@ public class CreateUserService {
         return null;
     }
 
-    // this returns a user from enka (doesnt check)
+    // this returns a user from enka (doesn't check)
     // THIS ONLY RETURNS A USER DOESN'T SAVE THEM
-    // usages from upsertUser exist only because the required validation checks are already done there
-    // potential edge case where concurrent requests might let many requests through
     public User fetchUserFromEnka(String uid){
         FeignEnkaApiService feignService = Feign.builder()
                 .decoder(new JacksonDecoder())
