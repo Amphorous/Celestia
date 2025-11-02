@@ -15,5 +15,7 @@ public interface UserRepository extends MongoRepository<User, String>, UserRepos
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     @Query(value = "{}", delete = true)
     long deleteAllDocuments();
+
+    boolean existsByUid(String uid);
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 }

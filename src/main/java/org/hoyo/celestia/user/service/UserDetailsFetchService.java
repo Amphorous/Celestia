@@ -43,8 +43,14 @@ public class UserDetailsFetchService {
 
     public ResponseEntity<NoRefreshUserDTO> getUserCardDetailsNoRefresh(String uid){
 
-        if(!userRepository.existsById(uid)){
+        //add uid validation
+
+        if(!userRepository.existsByUid(uid)){
             User user = createUserService.getUser(uid);
+            if(user == null || !(user.getUid().equals(uid))){
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            userRepository.save(user);
             NoRefreshUserDTO noRefreshUserDTO = new NoRefreshUserDTO(user);
             noRefreshUserDTO.setRegion(getRegionFromUid(uid));
             return ResponseEntity.ok(noRefreshUserDTO);
@@ -55,14 +61,4 @@ public class UserDetailsFetchService {
         return ResponseEntity.ok(noRefreshUserDTO);
     }
 
-    //after a hard refresh,
-    // true is returned if an update/insert occurs => if true is returned, frontend calls timeout and noRefresh
-    // false otherwise => if false is returned, frontend calls timeout and if timeout < 0 the button is greyed
-    public ResponseEntity<Boolean> getHardRefreshStatus(String uid){
-        ResponseEntity<String> upsertResponse = createUserService.upsertUser(uid);
-        if(upsertResponse.getStatusCode() == HttpStatus.OK && !Objects.equals(upsertResponse.getBody(), "User is not enka call yet.")){
-            return ResponseEntity.ok(true);
-        }
-        return ResponseEntity.ok(false);
-    }
 }

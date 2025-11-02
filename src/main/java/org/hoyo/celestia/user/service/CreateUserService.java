@@ -4,6 +4,7 @@ import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import org.hoyo.celestia.subloaders.service.SubloaderService;
 import org.hoyo.celestia.timeouts.service.TimeoutService;
+import org.hoyo.celestia.user.UpdateStatus;
 import org.hoyo.celestia.user.repository.UserRepository;
 import org.hoyo.celestia.user.model.User;
 import org.hoyo.celestia.user.validate.ValidateUid;
@@ -32,13 +33,13 @@ public class CreateUserService {
     //if no then enka call and create user
     //if yes then enka call and refresh data
     // [[ everytime a user refreshes a UID's data, this flow MUST occur, and the flow MUST go through here ]]
-    public ResponseEntity<String> upsertUser(String uid){
+    public UpdateStatus upsertUser(String uid){
         if(!validateUid.validate(uid)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad UID.");
+            return UpdateStatus.BAD_UID;
         }
         if(!timeoutService.canIEnkaCallYet(uid)){
             //timeout isnt ready
-            return ResponseEntity.status(HttpStatus.OK).body("User is not enka call yet.");
+            return UpdateStatus.ENKA_TIMEOUT;
         }
 
         Optional<User> userInDb = userRepository.findByUid(uid);
@@ -46,17 +47,17 @@ public class CreateUserService {
             User user = userInDb.get();
             User newUser = getUser(uid);
             if(newUser == null || newUser.getDetailInfo() == null || newUser.getUid() == null){
-                return ResponseEntity.status(HttpStatus.IM_USED).body("User found in DB but not in Enka.");
+                return UpdateStatus.ENKA_USER_NOT_FOUND;
             }
             newUser.setId(user.getId());
             userRepository.save(newUser);
             //call subloader here---------
             Boolean subloaderStatus = subloaderService.userSubloader(newUser);
             if(!subloaderStatus){
-                return ResponseEntity.status(HttpStatus.OK).body("User has private Builds List");
+                return UpdateStatus.PRIVATE_BUILDS;
             }
             //----------------------------
-            return ResponseEntity.status(HttpStatus.OK).body("User updated successfully.");
+            return UpdateStatus.UPDATED;
         } else {
             User newUser = getUser(uid);
             if(newUser != null){
@@ -64,40 +65,54 @@ public class CreateUserService {
                 //call subloader here---------
                 Boolean subloaderStatus = subloaderService.userSubloader(newUser);
                 if(!subloaderStatus){
-                    return ResponseEntity.status(HttpStatus.OK).body("User has private Builds List");
+                    return UpdateStatus.PRIVATE_BUILDS;
                 }
                 //----------------------------
-                return ResponseEntity.status(HttpStatus.OK).body("User created successfully.");
+                return UpdateStatus.CREATED;
             }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found.");
+        return UpdateStatus.UNKNOWN_ERROR;
     }
 
-    //this returns a user from enka or database (depending upon if the timout is satisfied) if uid is valid
+    // adds uid and timeout checks to fetchFromEnka()
+    // use this when you want to get a full user object anywhere
     public User getUser(String uid){
         if (validateUid.validate(uid)){
             if(!timeoutService.canIEnkaCallYet(uid)){
-                return userRepository.findByUid(uid).get();
-            }
-            FeignEnkaApiService feignService = Feign.builder()
-                    .decoder(new JacksonDecoder())
-                    .target(FeignEnkaApiService.class, "https://enka.network");
-
-            try{
-                User response = feignService.getPlayerData(uid);
-                if(response != null){
-                    timeoutService.upsertTimeoutByUID(uid);
-                    return response;
-                } else {
-                    //System.err.println("Error in createUserService.fetchUser, could not get response from enka for uid " + uid);
+                Optional<User> userInDb = userRepository.findByUid(uid);
+                if(userInDb.isPresent()){
+                    return userInDb.get();
                 }
-            } catch (Exception e){
-                e.printStackTrace();
             }
-
-            return null;
+            return fetchUserFromEnka(uid);
         }
         //System.err.println("Error in createUserService.fetchUser, could not get response from enka for uid " + uid);
+        return null;
+    }
+
+    // this returns a user from enka (doesnt check)
+    // THIS ONLY RETURNS A USER DOESN'T SAVE THEM
+    // usages from upsertUser exist only because the required validation checks are already done there
+    // potential edge case where concurrent requests might let many requests through
+    public User fetchUserFromEnka(String uid){
+        FeignEnkaApiService feignService = Feign.builder()
+                .decoder(new JacksonDecoder())
+                .target(FeignEnkaApiService.class, "https://enka.network");
+
+        try{
+            User response = feignService.getPlayerData(uid);
+            if(response != null){
+                //update timeout
+                timeoutService.upsertTimeoutByUID(uid);
+                return response;
+            }
+//            else {
+//                System.err.println("Error in createUserService.fetchUser, could not get response from enka for uid " + uid);
+//            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         return null;
     }
 

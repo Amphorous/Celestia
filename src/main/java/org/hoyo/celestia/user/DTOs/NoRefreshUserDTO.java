@@ -16,6 +16,7 @@ public class NoRefreshUserDTO {
     private Integer headIcon; //headIcon
     private Integer achievementCount; //recordInfo.achievementCount
     private Integer level;
+    private Boolean buildsPublic;
 
     public NoRefreshUserDTO(User user) {
         this.uid = user.getUid();
@@ -25,5 +26,6 @@ public class NoRefreshUserDTO {
         this.headIcon = user.getDetailInfo().getHeadIcon();
         this.achievementCount = user.getDetailInfo().getRecordInfo().getAchievementCount();
         this.level = user.getDetailInfo().getLevel();
+        this.buildsPublic = user.getDetailInfo().getIsDisplayAvatar();
     }
 }

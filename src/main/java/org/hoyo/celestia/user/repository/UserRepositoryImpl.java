@@ -28,10 +28,15 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .and("detailInfo.signature").as("signature")
                 .and("detailInfo.headIcon").as("headIcon")
                 .and("detailInfo.level").as("level")
-                .and("detailInfo.recordInfo.achievementCount").as("achievementCount");
+                .and("detailInfo.recordInfo.achievementCount").as("achievementCount")
+                .and("detailInfo.isDisplayAvatar").as("buildsPublic");
+
 
         Aggregation aggregation = Aggregation.newAggregation(match, projection);
-        AggregationResults<NoRefreshUserDTO> results = mongoTemplate.aggregate(aggregation, "users", NoRefreshUserDTO.class);
+        AggregationResults<NoRefreshUserDTO> results = mongoTemplate.aggregate(aggregation, "user", NoRefreshUserDTO.class);
+
+        System.out.println("Aggregation results: " + results.getMappedResults());
+
 
         NoRefreshUserDTO noRefreshUserDTO = results.getUniqueMappedResult();
         if (noRefreshUserDTO != null) {
