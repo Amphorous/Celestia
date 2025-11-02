@@ -72,26 +72,43 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+/*
+ * Custom Gradle tasks: syncGithubHsr + generateHonkerMeta
+ * -------------------------------------------------------
+ * 1. syncGithubHsr:
+ *    Runs `scripts/sync_github_hsr.py` to update and archive assets.
+ *
+ * 2. generateHonkerMeta:
+ *    Runs `scripts/regen_honker_meta.py` to regenerate honker_meta.json.
+ *
+ * The second depends on the first, and both run before Java compilation.
+ */
+
+def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+def pythonCommand = isWindows
+        ? 'py'
+        : new File(projectDir, 'scripts/venv/bin/python3').absolutePath
+
+
+tasks.register('syncGithubHsr', Exec) {
+    description = 'Syncs GitHub HSR assets and archives old ones'
+    group = 'build setup'
+
+    commandLine pythonCommand, 'scripts/sync_github_hsr.py'
+
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
 tasks.register('generateHonkerMeta', Exec) {
-    /*
-     * Custom Gradle task: generateHonkerMeta
-     * --------------------------------------
-     * Runs a Python script (scripts/regen_honker_meta.py)
-     * to generate a JSON metadata file (`honker_meta.json`)
-     * before the Java compilation step.
-     *
-     * Automatically detects the OS and uses the appropriate Python command.
-     */
     description = 'Generates honker_meta.json using Python'
     group = 'build setup'
 
-    def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
-    def pythonCommand = isWindows ? 'py' : 'python3'
+    // This script depends on syncGithubHsr running first
+    dependsOn tasks.named('syncGithubHsr')
 
-    // Command to execute the Python script
     commandLine pythonCommand, 'scripts/regen_honker_meta.py'
 
-    // Redirects script output to Gradle console
     standardOutput = System.out
     errorOutput = System.err
 }
