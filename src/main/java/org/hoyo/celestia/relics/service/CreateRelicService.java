@@ -42,6 +42,11 @@ public class CreateRelicService {
 
     public Set<String> getRelicIdSetFromAvatarDetails(AvatarDetail character){
         Set<String> relicIdSet = new HashSet<>();
+
+        // in case no relics are equipped
+        if(character.getRelicList() == null){
+            return relicIdSet;
+        }
         for(Relic relic : character.getRelicList()){
             relicIdSet.add(calculateRelicId(relic));
         }
