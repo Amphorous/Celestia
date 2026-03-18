@@ -35,10 +35,16 @@ public class FightPropService {
         //localMetaFile.getAvatar().get(character.getAvatarId()).get(String.valueOf(character.getPromotion()))
         String avatarId = character.getAvatarId();
         String promotion = String.valueOf(character.getPromotion());
+
+        if(promotion == null || promotion.isEmpty() || promotion.equals("null")){
+            promotion = "0";
+        }
+
         Integer level = character.getLevel();
 
         Map<String, Double> fightPropMap = new HashMap<>();
         Map<String, Double> currentAscensionStats = localMetaFile.getAvatar().get(avatarId).get(promotion);
+
 
 //        Double addValue = null;
 //        for(Map.Entry<String, Double> entry : currentAscensionStats.entrySet()) {
@@ -62,7 +68,7 @@ public class FightPropService {
         //not tested, there might be stat errors when the application runs
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-        //following maps keep track of the "Add" and "Base" values encountereed when reading through a character's
+        //following maps keep track of the "Add" and "Base" values encountered when reading through a character's
         //promotion, they are then used to calculate the final base stat after finding the required pair
         Map<String, Double> foundBaseValues = new HashMap<>();
         Map<String, Double> foundAddValues = new HashMap<>();
@@ -125,31 +131,37 @@ public class FightPropService {
 
         Map<Integer, Integer> relicSets = new HashMap<>();
         //iterate relics to get all stats from there
-        for(Relic relic:character.getRelicList()){
-            relicSets.put(relic.get_flat().getSetID(), relicSets.getOrDefault(relic.get_flat().getSetID(), 0) + 1);
-            for(Props prop : relic.get_flat().getProps()){
-                String key = prop.getType();
-                if(key.substring(key.length()-4).equalsIgnoreCase("base")){
-                    key = key.substring(0,key.length()-4);
+        if(character.getRelicList() != null){
+            for(Relic relic:character.getRelicList()){
+                relicSets.put(relic.get_flat().getSetID(), relicSets.getOrDefault(relic.get_flat().getSetID(), 0) + 1);
+                for(Props prop : relic.get_flat().getProps()){
+                    String key = prop.getType();
+                    if(key.substring(key.length()-4).equalsIgnoreCase("base")){
+                        key = key.substring(0,key.length()-4);
+                    }
+                    fightPropMap.put(key,prop.getValue()+fightPropMap.getOrDefault(key,0.0));
                 }
-                fightPropMap.put(key,prop.getValue()+fightPropMap.getOrDefault(key,0.0));
             }
         }
 
-        //finally get trace stats using AAAA2XX as skillId from metaFile.tree
-        for(Skill skill : character.getSkillTreeList()){
-            String pointId = skill.getPointId().toString();
-            if(pointId.charAt(pointId.length()-3)=='2'){
-                if(skill.getLevel()==1){
-                    //now we need to add the stat value to fightpropmap
-                    Map<String, Double> stat = localMetaFile.getTree().get(pointId).get("1").get("props");
-                    for(Map.Entry<String, Double> entry : stat.entrySet()) {
 
-                        StaticEffects.effectRoutingStatAdder(fightPropMap, entry);
+        //finally get trace stats using AAAA2XX as skillId from metaFile.tree
+        if(character.getSkillTreeList() != null){
+            for(Skill skill : character.getSkillTreeList()){
+                String pointId = skill.getPointId().toString();
+                if(pointId.charAt(pointId.length()-3)=='2'){
+                    if(skill.getLevel()==1){
+                        //now we need to add the stat value to fightpropmap
+                        Map<String, Double> stat = localMetaFile.getTree().get(pointId).get("1").get("props");
+                        for(Map.Entry<String, Double> entry : stat.entrySet()) {
+
+                            StaticEffects.effectRoutingStatAdder(fightPropMap, entry);
+                        }
                     }
                 }
             }
         }
+
         //metafile.getTree().get("skillid").get("1").get("props") <- this is a "map" of props, just iterate and add to set/add value to the record in fightprop
 
         //do set effects now
