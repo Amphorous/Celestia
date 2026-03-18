@@ -126,4 +126,5 @@ def sync():
     print(f"Updated to {new_version}")
 
 if __name__ == "__main__":
-    sync()
+    # sync()
+    print("Currently not syncing.")
