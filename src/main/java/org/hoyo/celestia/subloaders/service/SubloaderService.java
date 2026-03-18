@@ -64,6 +64,11 @@ public class SubloaderService {
             // to do this, check talent levels, level, artifact
             //make a build object for each character
             //-->
+
+            // FIXME potential upgrade by changing the skillliststring to only contain 1220.2.xxx class of stats concatenated
+            // FIXME this does the exact same thing as what we already do, but with less redundancy
+            // FIXME (make sure this is actually correct by cross checking the meta file before implementing)
+
             ArrayList<Skill> skillListTree = character.getSkillTreeList();
             String characterSkillListString = skillListTree.stream()
                     .map(skill -> String.valueOf(skill.getLevel()))
@@ -161,6 +166,11 @@ public class SubloaderService {
         if(!buildNodeRepository.hasLevelsOnStaticBuild(uid, character.getAvatarId(), characterSkillListString, level)){
             flag = true;
         }
+
+        /**
+         * FIXME potential improvement by doing equality checks using XOR and not using strings
+         * */
+
         Set<String> staticNodeRelicIdSet = relicNodeRepository.getAllRelicIdsFromStaticNode(uid, character.getAvatarId(), true);
         Set<String> currentRelicIdSet = (createRelicService.getRelicIdSetFromAvatarDetails(character));
         Set<String> currentRelicIdSetToInsert = new HashSet<>(currentRelicIdSet);

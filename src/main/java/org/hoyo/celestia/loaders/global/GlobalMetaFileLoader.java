@@ -36,5 +36,6 @@ public class GlobalMetaFileLoader {
         }
 
         metaFile = mapper.convertValue(honkerMetaRootNode, HonkerMetaObject.class);
+        System.out.println("Loaded Honker Meta");
     }
 }
