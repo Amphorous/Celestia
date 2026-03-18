@@ -43,8 +43,8 @@ public class TimeoutService {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         String key = buildKey(uid);
 
-        //mongo timeout insert
-        timeoutRepository.save(new Timeout(uid, Instant.now()));
+        //mongo timeout insert (not needed, we switching to redis)
+//        timeoutRepository.save(new Timeout(uid, Instant.now()));
 
         // Store timestamp with TTL (auto-expiry after 60s)
         ops.set(key, Instant.now().toString(), TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -55,13 +55,26 @@ public class TimeoutService {
      * Returns 0 if timeout does not exist.
      */
     public ResponseEntity<Long> timeLeft(String uid) {
-        Optional<Timeout> optionalTimeout = timeoutRepository.findByUid(uid);
-        if(optionalTimeout.isPresent()){
-            Timeout timeout = optionalTimeout.get();
-            Instant savedTime = timeout.getTimestamp();
-            savedTime = savedTime.plusSeconds(60);
-            Instant currentTime = Instant.now();
-            return ResponseEntity.status(HttpStatus.OK).body(Duration.between(savedTime, currentTime).toSeconds());
+        // old logic using mongo
+//        Optional<Timeout> optionalTimeout = timeoutRepository.findByUid(uid);
+//        if(optionalTimeout.isPresent()){
+//            Timeout timeout = optionalTimeout.get();
+//            Instant savedTime = timeout.getTimestamp();
+//            savedTime = savedTime.plusSeconds(60);
+//            Instant currentTime = Instant.now();
+//            return ResponseEntity.status(HttpStatus.OK).body(Duration.between(savedTime, currentTime).toSeconds());
+//        }
+//        return ResponseEntity.status(HttpStatus.OK).body(0L);
+
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String key = buildKey(uid);
+        String value = ops.get(key);
+
+        if(value != null) {
+            Instant savedTime = Instant.parse(value);
+            savedTime = savedTime.plusSeconds(TIMEOUT_SECONDS);
+            Instant now = Instant.now();
+            return ResponseEntity.status(HttpStatus.OK).body(Duration.between(savedTime, now).toSeconds());
         }
         return ResponseEntity.status(HttpStatus.OK).body(0L);
     }
