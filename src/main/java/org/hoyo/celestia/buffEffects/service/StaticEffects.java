@@ -26,12 +26,12 @@ public class StaticEffects {
             Integer relicSet = entry.getKey();
             Integer relicCount = entry.getValue();
             relicEffectRouting(stats, relicSet, relicCount);
-            weaponEffectRouting(stats, weaponId, weaponRank);
         }
-
+        weaponEffectRouting(stats, weaponId, weaponRank);
     }
 
     private void weaponEffectRouting(Map<String, Double> stats, String weaponId, Integer rank) {
+//        System.out.println("routing called");
         Map<String, Double> context = null;
         try{
             context = globalMetaFileLoader.getMetaFile().getEquipmentSkill().get(weaponId).get(String.valueOf(rank)).get("props");
@@ -42,6 +42,7 @@ public class StaticEffects {
         if(context == null) {return;}
 
         for(Map.Entry<String, Double> entry : context.entrySet()) {
+//            System.out.println(entry.getKey() + ": " + entry.getValue() +" are being added in weapons");
             effectRoutingStatAdder(stats, entry);
         }
     }
