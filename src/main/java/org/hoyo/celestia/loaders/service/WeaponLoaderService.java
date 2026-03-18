@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.annotation.PostConstruct;
 import org.hoyo.celestia.loaders.WeaponNodeRepository;
 import org.hoyo.celestia.loaders.global.GlobalMetaFileLoader;
 import org.hoyo.celestia.loaders.model.*;
@@ -26,6 +27,11 @@ public class WeaponLoaderService {
     public WeaponLoaderService(WeaponNodeRepository weaponNodeRepository, GlobalMetaFileLoader globalMetaFileLoader) {
         this.weaponNodeRepository = weaponNodeRepository;
         this.globalMetaFileLoader = globalMetaFileLoader;
+    }
+
+    @PostConstruct
+    public void init(){
+        System.out.println(loadWeaponsFromFile());
     }
 
     //read honker_weps.json
@@ -69,17 +75,24 @@ public class WeaponLoaderService {
 
             HonkerWeaponObject weapon = mapper.convertValue(weaponNode, HonkerWeaponObject.class);
             //call a function which takes the meta obj and the weapon onj and makes a node for it
-            weaponNodeCreator(weapon, metaFile, weaponId);
-            count++;
+
+            count += weaponNodeCreator(weapon, metaFile, weaponId);
         }
 
         return "Added " + count + " weapons";
     }
 
-    private void weaponNodeCreator(HonkerWeaponObject weapon, HonkerMetaObject metaFile, String weaponId) {
+    private int weaponNodeCreator(HonkerWeaponObject weapon, HonkerMetaObject metaFile, String weaponId) {
         //now create a pojo for the node and relationship which is supposed to go into the graph db
         //create repo methods for inserting the synthesized object
         //return
+
+        // FIXME new addition is to check if a weapon exists and add only if it doesnt
+
+        if(weaponNodeRepository.checkIfWeaponExists(weaponId)){
+            return 0;
+        }
+
         Double weaponBaseAtk = 0.0;
         Double weaponBaseDef = 0.0;
         Double weaponBaseHP = 0.0;
@@ -92,7 +105,7 @@ public class WeaponLoaderService {
             weaponBaseHP = (79*weaponAsc6Stats.get("BaseHPAdd"))
                             + weaponAsc6Stats.get("BaseHP");;
         } catch (Exception e) {
-            System.err.println("Version mismatch between files: honker_weps.json and honker_meta.json");
+            System.err.println("Version mismatch between files: weapons.json (formerly honker_weps.json) and honker_meta.json");
             e.printStackTrace();
         }
 
@@ -111,9 +124,17 @@ public class WeaponLoaderService {
         weaponNode.setWeaponId(weaponId);
         //weaponNodeRepository.createWeaponNodeAndLinkToStore(weaponNode, weaponId, weapon.getImagePath(), String.valueOf(weapon.getRarity()));
 
-        weaponNodeRepository.save(weaponNode);
-//        weaponNodeRepository.linkWeaponNodeToStore(weaponId, weapon.getImagePath(), String.valueOf(weapon.getRarity()));
-        weaponNodeRepository.linkWeaponNodeToStore(weaponId, weapon.getAvatarBaseType(), String.valueOf(weapon.getRarity()));
+
+        // old/original approach where creation and linking was separated
+//        weaponNodeRepository.save(weaponNode);
+//        weaponNodeRepository.linkWeaponNodeToStore(weaponId, weapon.getAvatarBaseType(), String.valueOf(weapon.getRarity()));
+
+        // new approach where creation and linking isn't separated
+        weaponNodeRepository.createAndLinkWeaponNodeToStore(weaponId, weapon.getAvatarBaseType(), String.valueOf(weapon.getRarity()), weaponNode.getNameHash(),
+                weaponNode.getImagePath(), weaponNode.getBaseAttack(), weaponNode.getBaseDefense(), weaponNode.getBaseHP()
+                );
+
+        return 1;
 
 //        Store store = storeRepository.findByName("weapons").orElseGet(() -> {
 //            Store s = new Store();
