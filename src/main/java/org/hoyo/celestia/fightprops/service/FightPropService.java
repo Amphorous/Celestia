@@ -34,9 +34,14 @@ public class FightPropService {
         HonkerMetaObject localMetaFile = globalMetaFileLoader.getMetaFile();
         //localMetaFile.getAvatar().get(character.getAvatarId()).get(String.valueOf(character.getPromotion()))
         String avatarId = character.getAvatarId();
-        String promotion = String.valueOf(character.getPromotion());
+//        String promotion = String.valueOf(character.getPromotion());
+        Integer intPromotion =  character.getPromotion();
+        String promotion = "0";
+        if(intPromotion != null){
+            promotion = String.valueOf(character.getPromotion());
+        }
 
-        if(promotion == null || promotion.isEmpty() || promotion.equals("null")){
+        if(promotion == null || promotion.isEmpty()){
             promotion = "0";
         }
 

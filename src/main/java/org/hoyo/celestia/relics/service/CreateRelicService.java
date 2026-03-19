@@ -29,6 +29,7 @@ public class CreateRelicService {
             relicId += relic.getTid() + "_";
             relicId += relic.getMainAffixId()+"_";
             ArrayList<SubAffix> subAffixList = relic.getSubAffixList();
+            if(subAffixList == null) return relicId;
             for(SubAffix subAffix : subAffixList){
                 relicId += subAffix.getAffixId() + "-" + subAffix.getCnt() + "-" + subAffix.getStep() + "_";
             }
@@ -80,6 +81,7 @@ public class CreateRelicService {
     private static List<SubAffixNode> getSubAffixNodes(Relic relic) {
         List<SubAffixNode> subAffixNodes = new ArrayList<>();
         int count = 1;
+        if(relic.getSubAffixList() == null) return subAffixNodes;
         for(SubAffix subAffix : relic.getSubAffixList()){
             SubAffixNode subAffixNode = new SubAffixNode();
             subAffixNode.setStep(subAffix.getStep());
