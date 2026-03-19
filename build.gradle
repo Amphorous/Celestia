@@ -85,9 +85,21 @@ tasks.named('test') {
  */
 
 def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
-def pythonCommand = isWindows
-        ? 'py'
-        : new File(projectDir, 'scripts/venv/bin/python3').absolutePath
+def pythonCommand
+if (isWindows) {
+    def venv1 = new File('scripts/.venv')
+    def venv2 = new File('scripts/venv')
+
+    if (venv1.exists()) {
+        pythonCommand = 'scripts\\.venv\\Scripts\\python'
+    } else if (venv2.exists()) {
+        pythonCommand = 'scripts\\venv\\Scripts\\python'
+    } else {
+        pythonCommand = 'py'
+    }
+} else {
+    pythonCommand = new File(projectDir, 'scripts/venv/bin/python3').absolutePath
+}
 
 
 tasks.register('syncGithubHsr', Exec) {
