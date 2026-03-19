@@ -87,7 +87,7 @@ public class WeaponLoaderService {
         //create repo methods for inserting the synthesized object
         //return
 
-        // FIXME new addition is to check if a weapon exists and add only if it doesnt
+        // new addition is to check if a weapon exists and add only if it doesnt
 
         if(weaponNodeRepository.checkIfWeaponExists(weaponId)){
             return 0;
