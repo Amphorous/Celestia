@@ -1,4 +1,5 @@
 # very scuffed way to get all hsr icons (not sure if we get all)
+# after the first attempt, it seems all but SPRatio are downloaded this way
 
 import json
 import os
