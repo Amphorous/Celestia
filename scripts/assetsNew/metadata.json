@@ -5,30 +5,30 @@
         "sha": "c912687f3b2947ed5236037f9496d12280c17d38"
       },
       "avatars": {
-        "sha": "28e29e6b9f7d707fdb86dc0f3d00440cf64f35e3"
+        "sha": "6f06b6ec358824dc7629b5e8a5d489d0992a7a88"
       },
       "hsr": {
-        "sha": "34ecba62e503b2d00351eb786cb0b09ba540076e"
+        "sha": "a3de75d455c24fdc6126dca6c437790ff0b115fc"
       },
       "pfps": {
-        "sha": "99dbea6ab44c105402bea71792597184168c022e"
+        "sha": "ce837d7a7288ff44e85bc3b400bc5d3e7f2b7981"
       },
       "ranks": {
-        "sha": "534281a84012e845380073d9fb433c769240a470"
+        "sha": "9a2ce82d53566e2fb0a0b5461bb7be4a94926062"
       },
       "relics": {
-        "sha": "55a494a682aff11c40e48df47e4cde2d235ba07a"
+        "sha": "85dca7d8fc09d8b64d22d4f91ce402f189ddbe3f"
       },
       "skills": {
-        "sha": "4032921a5af99ab5b3590f1648996ccddb254f5d"
+        "sha": "f0f6e9d2896eb27429410505256978d78400e4c0"
       },
       "tree": {
-        "sha": "2a5a9d0a0870add5a2d83a5e81f784f8f938b0ed"
+        "sha": "6621181961e7736f464259e101a42961cd66a8d8"
       },
       "weapons": {
-        "sha": "805ab2fdf5c7701a8be5d6ef8f1ff2d0976c10c0"
+        "sha": "e7a6e71ebbed63132da36ac1eb883b87500b8403"
       }
     }
   ],
-  "version": "v4"
+  "version": "v5"
 }
