@@ -3,7 +3,7 @@ import os
 import requests
 from pathlib import Path
 import shutil
-from datetime import datetime
+from datetime import datetime, timedelta
 
 REPO = "EnkaNetwork/API-docs"
 BRANCH = "master"
@@ -23,6 +23,7 @@ FILES_DIR = BASE_DIR
 ARCHIVE_DIR = BASE_DIR / "archives"
 META_PATH = BASE_DIR / "metadata.json"
 VERSIONS_JSON = ARCHIVE_DIR / "versions.json"
+SHOULD_I_GIT = BASE_DIR / "should_i_git.json"
 
 def github_file_sha(repo_path):
     """Fetch file info and return its SHA and download URL."""
@@ -125,6 +126,35 @@ def sync():
 
     print(f"Updated to {new_version}")
 
+def should_i_git():
+    if os.path.exists(SHOULD_I_GIT):
+        with open(SHOULD_I_GIT) as f:
+            j = json.load(f)
+
+            last_updated = datetime.fromisoformat(j["last_updated_time"])
+            now = datetime.now()
+
+            print(f"Last updated {now - last_updated} hours ago")
+
+            if now - last_updated > timedelta(hours=1):
+                return True
+            else:
+                return False
+    return True
+
+def update_should_i_git():
+    print(f"Updating git log with current time: {datetime.now()}")
+    data = {
+        "last_updated_time": datetime.now().isoformat()
+    }
+
+    os.makedirs(os.path.dirname(SHOULD_I_GIT), exist_ok=True) if os.path.dirname(SHOULD_I_GIT) else None
+
+    with open(SHOULD_I_GIT, "w") as f:
+        json.dump(data, f, indent=4)
+
+
 if __name__ == "__main__":
-    sync()
-    # print("Currently not syncing.")
+    if should_i_git():
+        update_should_i_git()
+        sync()
