@@ -39,6 +39,10 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    set('springCloudVersion', "2025.0.1")
+}
+
 dependencies {
     // --- Core Spring Boot dependencies ---
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'  // MongoDB integration
@@ -65,6 +69,15 @@ dependencies {
     // --- Feign Client (for REST communication between services) ---
     implementation ("io.github.openfeign:feign-core:11.9")
     implementation ("io.github.openfeign:feign-jackson:11.9")
+
+    // --- Eureka Netflix Client ---
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {
