@@ -10,3 +10,4 @@ o888bood8P'   `Y8bod8P' o888o   "888" `Y888""8o         o888o o888o o888o `Y8bod
 
 This is ${application.title} ${application.version}
 Powered by Spring Boot ${spring-boot.version}
+
