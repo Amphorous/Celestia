@@ -81,3 +81,4 @@ RemuriaForHSR/
 /scripts/assetsNew/downloaded_icons/
 
 /src/main/resources/application.properties
+/scripts/.venv/
